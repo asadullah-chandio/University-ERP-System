@@ -90,15 +90,6 @@ Returns:
 }
 ```
 
-## Things I'm being upfront about
-
-- **Dropout model** runs on synthetic data (no real dropout history exists yet), but it's built with realistic weighting so the results make sense across different inputs. Should be retrained once real data is available.
-- **Fee Default model** also runs on a synthetic label for the same reason - no real fee-payment history exists yet. The whole pipeline is ready to retrain the moment real data comes in.
-- **Enrollment Forecast** is precomputed instead of calculated live, since it doesn't depend on any input from the user, and it keeps a heavy dependency (Prophet) out of the live backend.
-- **Student Risk fallback model** is only a backup, not meant to replace the real external model - it's there so the dashboard still works if that service is down.
-
-None of this is hidden - the dashboard tells you directly when something is a live prediction versus a placeholder waiting on real data.
-
 ## Running it yourself
 
 ```bash
