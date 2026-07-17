@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Technify University — Predictive Analytics</title>
+<style>
+  :root{
+    --ink:#1b2430;
+    --paper:#f7f5f0;
+    --panel:#ffffff;
+    --line:#dedad0;
+    --gold:#a9772f;
+    --gold-deep:#7c5720;
+    --good:#2f6d4f;
+    --warn:#a9772f;
+    --bad:#a6402f;
+    --muted:#6b7280;
+    --serif:'Iowan Old Style','Palatino Linotype',Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Roboto,sans-serif;
+    --mono:'SF Mono',SFMono-Regular,Consolas,'Liberation Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.5;
+  }
+  header.top{
+    border-bottom:1px solid var(--line);
+    padding:28px 32px 22px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .brand{
+    font-family:var(--serif);
+    font-size:22px;
+    letter-spacing:0.02em;
+  }
+  .brand small{
+    display:block;
+    font-family:var(--sans);
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--gold-deep);
+    margin-top:4px;
+  }
+  nav.jump{
+    display:flex;
+    gap:18px;
+    flex-wrap:wrap;
+  }
+  nav.jump a{
+    font-size:13px;
+    color:var(--muted);
+    text-decoration:none;
+    border-bottom:1px solid transparent;
+    padding-bottom:2px;
+  }
+  nav.jump a:hover{ color:var(--ink); border-color:var(--gold); }
+
+  main{
+    max-width:1080px;
+    margin:0 auto;
+    padding:40px 32px 100px;
+  }
+
+  .intro{
+    max-width:640px;
+    margin-bottom:44px;
+  }
+  .intro h1{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:28px;
+    margin:0 0 10px;
+  }
+  .intro p{
+    color:var(--muted);
+    font-size:15px;
+    margin:0;
+  }
+
+  .module{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:2px;
+    margin-bottom:28px;
+    scroll-margin-top:24px;
+  }
+  .module-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:20px 24px;
+    border-bottom:1px solid var(--line);
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .module-head .tag{
+    font-size:10px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--gold-deep);
+    display:block;
+    margin-bottom:6px;
+  }
+  .module-head h2{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:19px;
+    margin:0;
+  }
+  .module-head .desc{
+    font-size:13px;
+    color:var(--muted);
+    max-width:360px;
+    text-align:right;
+  }
+  .module-body{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0;
+  }
+  @media (max-width:720px){
+    .module-body{ grid-template-columns:1fr; }
+    .module-head .desc{ text-align:left; max-width:none; }
+  }
+  .form-col{
+    padding:22px 24px;
+    border-right:1px solid var(--line);
+  }
+  @media (max-width:720px){
+    .form-col{ border-right:none; border-bottom:1px solid var(--line); }
+  }
+  .result-col{
+    padding:22px 24px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    min-height:180px;
+  }
+  .field{
+    margin-bottom:14px;
+  }
+  .field label{
+    display:block;
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:5px;
+  }
+  .field input, .field select{
+    width:100%;
+    padding:9px 10px;
+    border:1px solid var(--line);
+    border-radius:2px;
+    font-size:14px;
+    font-family:var(--sans);
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .field input:focus, .field select:focus{
+    outline:none;
+    border-color:var(--gold);
+  }
+  .row2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  button.run{
+    margin-top:6px;
+    width:100%;
+    padding:11px;
+    background:var(--ink);
+    color:var(--paper);
+    border:none;
+    border-radius:2px;
+    font-size:13px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    cursor:pointer;
+  }
+  button.run:hover{ background:var(--gold-deep); }
+  button.run:disabled{ opacity:0.5; cursor:default; }
+
+  .placeholder{
+    color:var(--muted);
+    font-size:13px;
+  }
+  .result{
+    display:none;
+  }
+  .result.show{ display:block; }
+  .result .big{
+    font-family:var(--serif);
+    font-size:30px;
+    margin-bottom:4px;
+  }
+  .result .sub{
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:14px;
+  }
+  .risk-pill{
+    display:inline-block;
+    padding:4px 12px;
+    border-radius:20px;
+    font-size:12px;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    font-weight:600;
+  }
+  .risk-Low{ background:#e6f0ea; color:var(--good); }
+  .risk-Medium{ background:#f5ecdd; color:var(--warn); }
+  .risk-High{ background:#f3e0db; color:var(--bad); }
+
+  .error-msg{
+    color:var(--bad);
+    font-size:13px;
+    display:none;
+  }
+  .error-msg.show{ display:block; }
+
+  .soon{
+    padding:22px 24px;
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  .forecast-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+  }
+  .forecast-table th, .forecast-table td{
+    text-align:left;
+    padding:6px 8px;
+    border-bottom:1px solid var(--line);
+  }
+  .forecast-table th{
+    color:var(--muted);
+    font-weight:500;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+  }
+  .forecast-table td.future{ color:var(--gold-deep); font-weight:600; }
+
+  footer{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 32px 60px;
+    color:var(--muted);
+    font-size:12px;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">Technify University ERP<small>Predictive Analytics &amp; Forecasting</small></div>
+  <nav class="jump">
+    <a href="#dropout">Dropout</a>
+    <a href="#fee">Fee Default</a>
+    <a href="#gpa">GPA</a>
+    <a href="#admissions">Admissions</a>
+    <a href="#risk">Student Risk</a>
+    <a href="#recommend">Recommendations</a>
+  </nav>
+</header>
+
+<main>
+  <div class="intro">
+    <h1>Prediction modules, live from deployed models</h1>
+    <p>Each panel below calls a real serverless model trained on the team's data. Enter values and run a prediction, or review the enrollment forecast.</p>
+  </div>
+
+  <!-- DROPOUT -->
+  <section class="module" id="dropout">
+    <div class="module-head">
+      <div>
+        <span class="tag">Module 2</span>
+        <h2>Dropout Prediction</h2>
+      </div>
+      <div class="desc">Logistic regression on attendance, GPA, fee status, and LMS activity.</div>
+    </div>
+    <div class="module-body">
+      <div class="form-col">
+        <div class="row2">
+          <div class="field">
+            <label>Attendance (%)</label>
+            <input type="number" id="do-attendance" value="55" min="0" max="100" />
+          </div>
+          <div class="field">
+            <label>GPA</label>
+            <input type="number" id="do-gpa" value="2.1" min="0" max="4" step="0.1" />
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>Fees Paid</label>
+            <select id="do-fees">
+              <option value="1">Yes</option>
+              <option value="0">No</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>LMS Activity (sessions/mo)</label>
+            <input type="number" id="do-lms" value="10" min="0" />
+          </div>
+        </div>
+        <button class="run" onclick="runDropout()">Run Prediction</button>
+        <div class="error-msg" id="do-error"></div>
+      </div>
+      <div class="result-col">
+        <div class="placeholder" id="do-placeholder">Results will appear here.</div>
+        <div class="result" id="do-result">
+          <div class="big" id="do-prob">—</div>
+          <div class="sub">Estimated dropout probability</div>
+          <span class="risk-pill" id="do-risk">—</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEE DEFAULT -->
+  <section class="module" id="fee">
+    <div class="module-head">
+      <div>
+        <span class="tag">Module 3</span>
+        <h2>Fee Default Prediction</h2>
+      </div>
+      <div class="desc">Random forest classifier on student profile attributes.</div>
+    </div>
+    <div class="module-body">
+      <div class="form-col">
+        <div class="row2">
+          <div class="field">
+            <label>Department</label>
+            <select id="fee-dept"></select>
+          </div>
+          <div class="field">
+            <label>Year Level</label>
+            <select id="fee-year"></select>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>City</label>
+            <select id="fee-city"></select>
+          </div>
+          <div class="field">
+            <label>Gender</label>
+            <select id="fee-gender"></select>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>Scholarship</label>
+            <select id="fee-scholarship"></select>
+          </div>
+          <div class="field">
+            <label>CGPA</label>
+            <input type="number" id="fee-cgpa" value="2.8" min="0" max="4" step="0.1" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Enrollment Status</label>
+          <select id="fee-status"></select>
+        </div>
+        <button class="run" onclick="runFee()">Run Prediction</button>
+        <div class="error-msg" id="fee-error"></div>
+      </div>
+      <div class="result-col">
+        <div class="placeholder" id="fee-placeholder">Results will appear here.</div>
+        <div class="result" id="fee-result">
+          <div class="big" id="fee-pred">—</div>
+          <div class="sub" id="fee-prob-sub">Default probability</div>
+          <span class="risk-pill" id="fee-risk">—</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GPA -->
+  <section class="module" id="gpa">
+    <div class="module-head">
+      <div>
+        <span class="tag">Module 4</span>
+        <h2>GPA Prediction</h2>
+      </div>
+      <div class="desc">Random forest regression trained on attendance and coursework signals.</div>
+    </div>
+    <div class="module-body">
+      <div class="form-col">
+        <div class="row2">
+          <div class="field">
+            <label>Attendance (%)</label>
+            <input type="number" id="gpa-attendance" value="85" min="0" max="100" />
+          </div>
+          <div class="field">
+            <label>Assignments (%)</label>
+            <input type="number" id="gpa-assign" value="80" min="0" max="100" />
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>Quiz Scores (%)</label>
+            <input type="number" id="gpa-quiz" value="75" min="0" max="100" />
+          </div>
+          <div class="field">
+            <label>Previous GPA</label>
+            <input type="number" id="gpa-prev" value="3.0" min="0" max="4" step="0.1" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Exam Results (%)</label>
+          <input type="number" id="gpa-exam" value="78" min="0" max="100" />
+        </div>
+        <button class="run" onclick="runGpa()">Run Prediction</button>
+        <div class="error-msg" id="gpa-error"></div>
+      </div>
+      <div class="result-col">
+        <div class="placeholder" id="gpa-placeholder">Results will appear here.</div>
+        <div class="result" id="gpa-result">
+          <div class="big" id="gpa-value">—</div>
+          <div class="sub">Predicted next-semester GPA</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADMISSIONS -->
+  <section class="module" id="admissions">
+    <div class="module-head">
+      <div>
+        <span class="tag">Module 5</span>
+        <h2>Enrollment Forecasting</h2>
+      </div>
+      <div class="desc">Time-series forecast (Prophet) on historical yearly enrollment.</div>
+    </div>
+    <div style="padding:22px 24px;">
+      <div class="placeholder" id="admissions-placeholder">Loading forecast…</div>
+      <table class="forecast-table" id="admissions-table" style="display:none;">
+        <thead>
+          <tr><th>Year</th><th>Students</th><th>Type</th></tr>
+        </thead>
+        <tbody id="admissions-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- STUDENT RISK -->
+  <section class="module" id="risk">
+    <div class="module-head">
+      <div>
+        <span class="tag">Module 1</span>
+        <h2>Student Risk Prediction</h2>
+      </div>
+      <div class="desc">Random forest risk classifier + early-warning alerts, live on Hugging Face.</div>
+    </div>
+    <div class="module-body">
+      <div class="form-col">
+        <div class="row2">
+          <div class="field">
+            <label>Student ID</label>
+            <input type="text" id="risk-id" value="STU-1001" />
+          </div>
+          <div class="field">
+            <label>Current GPA</label>
+            <input type="number" id="risk-gpa" value="1.6" min="0" max="4" step="0.1" />
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>Attendance (%)</label>
+            <input type="number" id="risk-attendance" value="45" min="0" max="100" />
+          </div>
+          <div class="field">
+            <label>Backlogs</label>
+            <input type="number" id="risk-backlogs" value="3" min="0" />
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>Assignments Submitted</label>
+            <input type="number" id="risk-assign-sub" value="2" min="0" />
+          </div>
+          <div class="field">
+            <label>Assignments Total</label>
+            <input type="number" id="risk-assign-total" value="10" min="0" />
+          </div>
+        </div>
+        <button class="run" onclick="runRisk()">Run Prediction</button>
+        <div class="sub" style="margin-top:10px;">Note: the live API sleeps when idle and can take ~30s to wake up on the first request.</div>
+        <div class="error-msg" id="risk-error"></div>
+      </div>
+      <div class="result-col">
+        <div class="placeholder" id="risk-placeholder">Results will appear here.</div>
+        <div class="result" id="risk-result">
+          <div class="big" id="risk-score">—</div>
+          <div class="sub">Risk score</div>
+          <span class="risk-pill" id="risk-pill">—</span>
+          <div id="risk-alerts" style="margin-top:14px;font-size:13px;color:var(--ink);"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RECOMMENDATIONS -->
+  <section class="module" id="recommend">
+    <div class="module-head">
+      <div>
+        <span class="tag">Module 6</span>
+        <h2>Recommendation Engine</h2>
+      </div>
+      <div class="desc">Flags weak courses (exam score below 50%) from real exam records.</div>
+    </div>
+    <div class="module-body">
+      <div class="form-col">
+        <div class="field">
+          <label>Student ID</label>
+          <input type="text" id="rec-id" value="STU0064" />
+        </div>
+        <button class="run" onclick="runRecommend()">Get Recommendations</button>
+        <div class="error-msg" id="rec-error"></div>
+      </div>
+      <div class="result-col">
+        <div class="placeholder" id="rec-placeholder">Results will appear here.</div>
+        <div class="result" id="rec-result">
+          <div class="big" id="rec-status">—</div>
+          <div class="sub">Academic standing</div>
+          <div id="rec-weak" style="margin-top:10px;font-size:13px;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Technify University ERP — Data Science Team 2. All predictions run against the deployed models in <code>/api</code>.
+</footer>
+
+<script>
+async function postJSON(url, body){
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  const data = await res.json();
+  if(!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+async function getJSON(url){
+  const res = await fetch(url);
+  const data = await res.json();
+  if(!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+// DROPOUT
+async function runDropout(){
+  const err = document.getElementById('do-error');
+  err.classList.remove('show');
+  try{
+    const data = await postJSON('/api/dropout', {
+      attendance: document.getElementById('do-attendance').value,
+      gpa: document.getElementById('do-gpa').value,
+      fees_paid: document.getElementById('do-fees').value,
+      lms_activity: document.getElementById('do-lms').value,
+    });
+    document.getElementById('do-placeholder').style.display = 'none';
+    document.getElementById('do-result').classList.add('show');
+    document.getElementById('do-prob').textContent = data.dropout_probability + '%';
+    const pill = document.getElementById('do-risk');
+    pill.textContent = data.risk_level + ' Risk';
+    pill.className = 'risk-pill risk-' + data.risk_level;
+  }catch(e){
+    err.textContent = e.message;
+    err.classList.add('show');
+  }
+}
+
+// FEE DEFAULT
+async function loadFeeOptions(){
+  const data = await getJSON('/api/fee_default');
+  const opts = data.options;
+  const fill = (id, values) => {
+    const el = document.getElementById(id);
+    el.innerHTML = values.map(v => `<option value="${v}">${v}</option>`).join('');
+  };
+  fill('fee-dept', opts.Department);
+  fill('fee-year', opts.YearLevel);
+  fill('fee-city', opts.City);
+  fill('fee-gender', opts.Gender);
+  fill('fee-scholarship', opts.Scholarship);
+  fill('fee-status', opts.Status);
+}
+async function runFee(){
+  const err = document.getElementById('fee-error');
+  err.classList.remove('show');
+  try{
+    const data = await postJSON('/api/fee_default', {
+      Gender: document.getElementById('fee-gender').value,
+      Department: document.getElementById('fee-dept').value,
+      YearLevel: document.getElementById('fee-year').value,
+      Status: document.getElementById('fee-status').value,
+      City: document.getElementById('fee-city').value,
+      Scholarship: document.getElementById('fee-scholarship').value,
+      CGPA: document.getElementById('fee-cgpa').value,
+    });
+    document.getElementById('fee-placeholder').style.display = 'none';
+    document.getElementById('fee-result').classList.add('show');
+    document.getElementById('fee-pred').textContent = data.default_prediction;
+    document.getElementById('fee-prob-sub').textContent = data.default_probability + '% default probability';
+    const pill = document.getElementById('fee-risk');
+    pill.textContent = data.risk_level + ' Risk';
+    pill.className = 'risk-pill risk-' + data.risk_level;
+  }catch(e){
+    err.textContent = e.message;
+    err.classList.add('show');
+  }
+}
+
+// GPA
+async function runGpa(){
+  const err = document.getElementById('gpa-error');
+  err.classList.remove('show');
+  try{
+    const data = await postJSON('/api/gpa', {
+      Attendance: document.getElementById('gpa-attendance').value,
+      Assignments: document.getElementById('gpa-assign').value,
+      QuizScores: document.getElementById('gpa-quiz').value,
+      PreviousGPA: document.getElementById('gpa-prev').value,
+      ExamResults: document.getElementById('gpa-exam').value,
+    });
+    document.getElementById('gpa-placeholder').style.display = 'none';
+    document.getElementById('gpa-result').classList.add('show');
+    document.getElementById('gpa-value').textContent = data.predicted_gpa;
+  }catch(e){
+    err.textContent = e.message;
+    err.classList.add('show');
+  }
+}
+
+// ADMISSIONS
+async function loadAdmissions(){
+  try{
+    const data = await getJSON('/api/admission_forecast');
+    const body = document.getElementById('admissions-body');
+    let rows = '';
+    data.historical.forEach(r => {
+      rows += `<tr><td>${r.year}</td><td>${r.students}</td><td>Historical</td></tr>`;
+    });
+    data.forecast.forEach(r => {
+      rows += `<tr><td>${r.year}</td><td class="future">${Math.round(r.yhat)}</td><td>Forecast</td></tr>`;
+    });
+    body.innerHTML = rows;
+    document.getElementById('admissions-placeholder').style.display = 'none';
+    document.getElementById('admissions-table').style.display = 'table';
+  }catch(e){
+    document.getElementById('admissions-placeholder').textContent = 'Could not load forecast: ' + e.message;
+  }
+}
+
+// STUDENT RISK (external live API)
+const RISK_API = 'https://muhammadabdullah31808-early-warning-api.hf.space/prediction/student-risk';
+
+async function callRiskApi(){
+  const res = await fetch(RISK_API, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      student_id: document.getElementById('risk-id').value,
+      attendance_percentage: Number(document.getElementById('risk-attendance').value),
+      current_gpa: Number(document.getElementById('risk-gpa').value),
+      assignments_submitted: Number(document.getElementById('risk-assign-sub').value),
+      assignments_total: Number(document.getElementById('risk-assign-total').value),
+      backlogs: Number(document.getElementById('risk-backlogs').value),
+    })
+  });
+  const raw = await res.text();
+  let data;
+  try{
+    data = JSON.parse(raw);
+  }catch{
+    throw new Error('SPACE_NOT_READY');
+  }
+  if(!res.ok) throw new Error(data.detail || 'Request failed');
+  return data;
+}
+
+async function callRiskFallback(){
+  const data = await postJSON('/api/student_risk_fallback', {
+    student_id: document.getElementById('risk-id').value,
+    attendance_percentage: Number(document.getElementById('risk-attendance').value),
+    current_gpa: Number(document.getElementById('risk-gpa').value),
+    assignments_submitted: Number(document.getElementById('risk-assign-sub').value),
+    assignments_total: Number(document.getElementById('risk-assign-total').value),
+    backlogs: Number(document.getElementById('risk-backlogs').value),
+  });
+  return data;
+}
+
+async function runRisk(){
+  const err = document.getElementById('risk-error');
+  err.classList.remove('show');
+  const btn = document.querySelector('#risk button.run');
+  btn.disabled = true;
+  btn.textContent = 'Running (may take ~30s if waking up)…';
+  try{
+    let data;
+    let usedFallback = false;
+    try{
+      data = await callRiskApi();
+    }catch(e){
+      if(e.message === 'SPACE_NOT_READY'){
+        btn.textContent = 'Still waking up, retrying in 15s…';
+        await new Promise(r => setTimeout(r, 15000));
+        try{
+          data = await callRiskApi();
+        }catch{
+          // give up on the live service, use local fallback
+          btn.textContent = 'Live service unavailable, using local model…';
+          data = await callRiskFallback();
+          usedFallback = true;
+        }
+      } else {
+        btn.textContent = 'Live service unavailable, using local model…';
+        data = await callRiskFallback();
+        usedFallback = true;
+      }
+    }
+
+    document.getElementById('risk-placeholder').style.display = 'none';
+    document.getElementById('risk-result').classList.add('show');
+    document.getElementById('risk-score').textContent = data.risk_score;
+    const pill = document.getElementById('risk-pill');
+    const level = (data.risk_level || '').charAt(0).toUpperCase() + (data.risk_level || '').slice(1);
+    pill.textContent = level + ' Risk' + (data.may_fail ? ' · May Fail' : '');
+    pill.className = 'risk-pill risk-' + (level || 'Medium');
+
+    const alertsEl = document.getElementById('risk-alerts');
+    let alertsHtml = '';
+    if(data.alerts && data.alerts.length){
+      alertsHtml = data.alerts.map(a =>
+        `<div style="margin-bottom:6px;"><strong>${a.type}</strong> (${a.severity}): ${a.message}</div>`
+      ).join('');
+    } else {
+      alertsHtml = '<span class="placeholder">No active alerts.</span>';
+    }
+    if(usedFallback){
+      alertsHtml += '<div style="margin-top:10px;font-size:11px;color:var(--gold-deep);">⚠ Computed locally — the live teammate service was unavailable, so this result comes from a local stand-in model, not the deployed Hugging Face API.</div>';
+    }
+    alertsEl.innerHTML = alertsHtml;
+  }catch(e){
+    if(e.message === 'SPACE_NOT_READY'){
+      err.textContent = "The live Student Risk service isn't responding yet (it may still be starting up or currently down). Please try again in a minute — this is the teammate's external service, not this dashboard.";
+    } else {
+      err.textContent = 'Could not reach the live API: ' + e.message;
+    }
+    err.classList.add('show');
+  }finally{
+    btn.disabled = false;
+    btn.textContent = 'Run Prediction';
+  }
+}
+
+// RECOMMENDATIONS
+async function runRecommend(){
+  const err = document.getElementById('rec-error');
+  err.classList.remove('show');
+  try{
+    const id = document.getElementById('rec-id').value.trim();
+    const data = await getJSON('/api/recommend/' + encodeURIComponent(id));
+    document.getElementById('rec-placeholder').style.display = 'none';
+    document.getElementById('rec-result').classList.add('show');
+    document.getElementById('rec-status').textContent = data.status;
+
+    const weakEl = document.getElementById('rec-weak');
+    if(data.weak_areas && data.weak_areas.length){
+      weakEl.innerHTML = '<div style="color:var(--muted);margin-bottom:6px;">Weak courses:</div>' +
+        data.weak_areas.map(w =>
+          `<div style="margin-bottom:4px;">${w.course_id} — ${w.percentage}% (Grade ${w.grade})</div>`
+        ).join('');
+    } else {
+      weakEl.innerHTML = '<span class="placeholder">No weak areas — all courses above 50%.</span>';
+    }
+  }catch(e){
+    err.textContent = e.message;
+    err.classList.add('show');
+  }
+}
+
+loadFeeOptions().catch(e => {
+  document.getElementById('fee-error').textContent = 'Could not load form options: ' + e.message;
+  document.getElementById('fee-error').classList.add('show');
+});
+loadAdmissions();
+</script>
+
+</body>
+</html>
