@@ -1,7 +1,15 @@
-fastapi==0.115.6
-pydantic==2.10.4
-scikit-learn==1.8.0
-pandas==3.0.2
-numpy==2.4.4
-joblib==1.5.3
-openpyxl==3.1.5
+# Shared by two deployments from this one repo:
+#   - api/index.py (FastAPI) on Vercel -- the existing production dashboard
+#   - streamlit_app.py on Streamlit Cloud -- the new portfolio demo
+# Unpinned/loosely pinned on purpose: a previous project hit a Streamlit
+# Cloud install failure from strict version pins, so versions are left to
+# the platform's resolver rather than locked here.
+fastapi
+pydantic
+scikit-learn
+pandas
+numpy
+joblib
+openpyxl
+streamlit
+plotly
